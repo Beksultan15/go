@@ -1,0 +1,64 @@
+package handler
+
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/Beksultan15/project_go/models"
+	"github.com/gin-gonic/gin"
+)
+
+func (h *Handler) signup(c *gin.Context){
+	var input models.User
+	
+	if err := c.BindJSON(&input); err!= nil {
+			newErrorResponse(c,http.StatusBadRequest, err.Error())
+			return
+	}
+	
+	if err := h.validate(c,input); err == 1{
+	msg, err := h.services.Authorization.CreateUser(input)
+	if err!= nil {
+		newErrorResponse(c,http.StatusBadRequest, err.Error())
+		return 
+	}
+	c.JSON(http.StatusOK,map[string]interface{}{
+		"msg":msg,
+		"status":http.StatusOK,
+	})
+}
+	
+}
+
+type signInInput struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"` 
+}
+
+	func (h *Handler) signin(c *gin.Context){
+		var input signInInput
+		
+		if err := c.BindJSON(&input); err!= nil {
+				newErrorResponse(c,http.StatusBadRequest, err.Error())
+				return
+		}
+
+		fmt.Print(input.Username)
+
+		token, err := h.services.Authorization.GenerateToken(input.Username,input.Password)
+		refresh,err := h.services.Authorization.RefreshToken(input.Username,input.Password)
+		if err!= nil {
+			newErrorResponse(c,http.StatusBadRequest, err.Error())
+			return
+		}
+		c.JSON(http.StatusOK,map[string]interface{}{
+			"access_token":token,
+			"refresh_token":refresh,
+		})
+	}
+ 
+
+
+
+
+	

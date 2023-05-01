@@ -1,0 +1,17 @@
+version: "3.9"
+
+
+services:
+
+  postgres:
+    build: ./postgres-db
+    ports:
+      - 5434:5432
+    volumes:
+      -  ./postgres-db/pgdata/pgdata
+    environment:
+      - POSTGRES_DB=go
+      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=docker
+      - PGDATA=/pgdata
+
